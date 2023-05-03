@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>-->
-<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.vl4ds4m.objdetjfx.Controller"
-            prefHeight="400.0" prefWidth="600.0">
+<GridPane alignment="CENTER" gridLinesVisible="true" hgap="15.0" prefHeight="800.0" prefWidth="1000.0"
+          vgap="15.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="org.vl4ds4m.objdetjfx.Controller">
 
-    <Button fx:id="imageAdditionButton" text="Load an image" minWidth="100"
-            onMouseClicked="#clickOnImageAdditionButton"/>
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+    </padding>
+    <columnConstraints>
+        <ColumnConstraints halignment="CENTER" minWidth="700.0"/>
+        <ColumnConstraints halignment="CENTER" minWidth="150.0"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints minHeight="700.0"/>
+    </rowConstraints>
 
-</AnchorPane>
+</GridPane>
