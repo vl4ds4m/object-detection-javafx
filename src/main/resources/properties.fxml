@@ -3,8 +3,8 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane alignment="CENTER" gridLinesVisible="true" hgap="15.0" prefHeight="800.0" prefWidth="1000.0"
-          vgap="15.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
+<GridPane alignment="CENTER" gridLinesVisible="true" hgap="15.0" prefHeight="800.0" prefWidth="1000.0" vgap="15.0"
+          xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
           fx:controller="org.vl4ds4m.objdetjfx.Controller">
 
     <padding>

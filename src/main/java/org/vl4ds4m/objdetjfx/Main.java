@@ -16,10 +16,9 @@ import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class Main extends Application {
     private static final String FXML_PATH = "/properties.fxml";
@@ -27,6 +26,7 @@ public class Main extends Application {
     private final StackPane stackPane = new StackPane();
     private final ImageView imageView = new ImageView();
     private final Pane rectanglesPane = new Pane();
+    private String imageFileName;
     private boolean isRectanglesDrawn = false;
     private final Button imageAdditionButton = new Button();
     private final Button objectsDetectionButton = new Button();
@@ -46,17 +46,20 @@ public class Main extends Application {
             FileChooser fileChooser = new FileChooser();
             File imageFile = fileChooser.showOpenDialog(stage);
             if (imageFile != null) {
+                imageFileName = imageFile.getAbsolutePath();
                 try {
-                    Image image = new Image(new FileInputStream(imageFile.getAbsolutePath()));
-                    if (image.isError()) {
-                        showAlert("Can't open the file.", "The file isn't an image!");
-                    } else {
+                    Image image = new Image(new FileInputStream(imageFileName));
+                    if (!image.isError()) {
                         imageView.setImage(image);
+                        rectanglesPane.setMaxHeight(image.getHeight());
+                        rectanglesPane.setMaxWidth(image.getWidth());
                         rectanglesPane.getChildren().clear();
                         isRectanglesDrawn = false;
+                    } else {
+                        showAlert("Can't open the file.", "The file isn't an image!");
                     }
                 } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
+                    showAlert("Loading an image", "No image exists!");
                 }
             }
         });
@@ -66,16 +69,46 @@ public class Main extends Application {
         objectsDetectionButton.setOnAction(actionEvent -> {
             if (imageView.getImage() != null) {
                 if (!isRectanglesDrawn) {
-                    Rectangle rectangle = new Rectangle();
-                    rectangle.setX(10.0);
-                    rectangle.setY(100.0);
-                    rectangle.setWidth(200.0);
-                    rectangle.setHeight(200.0);
-                    rectangle.setFill(Color.TRANSPARENT);
-                    rectangle.setStroke(Color.RED);
-                    rectangle.setStrokeWidth(3.0);
-                    rectanglesPane.getChildren().add(rectangle);
-                    isRectanglesDrawn = true;
+                    // Call native code
+                    Detector.detectObjectsOnImage(imageFileName);
+
+                    String[] fileNameParts = imageFileName.split("\\.");
+                    StringBuilder labelsFileName = new StringBuilder(fileNameParts[0]);
+                    for (int i = 1; i < fileNameParts.length - 1; ++i) {
+                        labelsFileName.append(".").append(fileNameParts[i]);
+                    }
+                    try (FileReader fileReader = new FileReader(labelsFileName + "_labels.txt");
+                         BufferedReader bufferedReader = new BufferedReader(fileReader)
+                    ) {
+                        List<String> labelsList = bufferedReader.lines().toList();
+                        if (labelsList.size() > 0) {
+                            try {
+                                labelsList.forEach(line -> {
+                                    List<Double> objDatalist =
+                                            Arrays.stream(line.split(" "))
+                                                    .map(Double::valueOf).toList();
+                                    Rectangle rectangle = new Rectangle();
+                                    rectangle.setX(objDatalist.get(0) -
+                                            objDatalist.get(2) / 2);
+                                    rectangle.setY(objDatalist.get(1) -
+                                            objDatalist.get(3) / 2);
+                                    rectangle.setWidth(objDatalist.get(2));
+                                    rectangle.setHeight(objDatalist.get(3));
+                                    rectangle.setFill(Color.TRANSPARENT);
+                                    rectangle.setStroke(Color.RED);
+                                    rectangle.setStrokeWidth(3.0);
+                                    rectanglesPane.getChildren().add(rectangle);
+                                });
+                            } catch (IndexOutOfBoundsException | NumberFormatException e) {
+                                showAlert("Stroking objects", "The file has incorrect data!");
+                            }
+                            isRectanglesDrawn = true;
+                        } else {
+                            showAlert("Stroking objects", "No object is detected on the image!");
+                        }
+                    } catch (IOException e) {
+                        showAlert("Stroking objects", "No data file exists!");
+                    }
                 } else {
                     showAlert("Stroking objects", "Objects have already been stroked!");
                 }
@@ -101,13 +134,18 @@ public class Main extends Application {
 
         // Adjust scene elements
         imageAdditionButton.setText("Load an image");
+
         objectsDetectionButton.setText("Stroke objects");
+
         imageLabel.setFont(Font.font(20.0));
+
         buttonsBox.setAlignment(Pos.CENTER);
         buttonsBox.setSpacing(10.0);
+        buttonsBox.getChildren().addAll(imageAdditionButton, objectsDetectionButton);
 
         stackPane.getChildren().addAll(imageLabel, imageView, rectanglesPane);
-        buttonsBox.getChildren().addAll(imageAdditionButton, objectsDetectionButton);
+        stackPane.setAlignment(Pos.CENTER);
+
         root.add(stackPane, 0, 0);
         root.add(buttonsBox, 1, 0);
 
