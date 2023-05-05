@@ -29,7 +29,7 @@ JNIEXPORT void JNICALL Java_org_vl4ds4m_objdetjfx_Detector_getBoundedBoxes(JNIEn
 
     cv::Mat net_output(net.forward().reshape(0, 4 + NUM_OF_CLASSES).t());
 
-    std::ofstream labels_file(image_file_name.substr(0, image_file_name.find(".")) + "_labels.txt");
+    std::ofstream labels_file(image_file_name.substr(0, image_file_name.find(".")) + "_RAW.txt");
 
     for (int i = 0; i < net_output.rows; ++i) {
         for (int j = 0; j < net_output.cols; ++j) {

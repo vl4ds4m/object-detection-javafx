@@ -70,23 +70,20 @@ public class Main extends Application {
             if (imageView.getImage() != null) {
                 if (!isRectanglesDrawn) {
                     // Call native code
-                    Detector.detectObjectsOnImage(imageFileName);
-
-                    String[] fileNameParts = imageFileName.split("\\.");
-                    StringBuilder labelsFileName = new StringBuilder(fileNameParts[0]);
-                    for (int i = 1; i < fileNameParts.length - 1; ++i) {
-                        labelsFileName.append(".").append(fileNameParts[i]);
+                    final String labelsFileName;
+                    try {
+                        labelsFileName = Detector.detectObjectsOnImage(imageFileName);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
-                    try (FileReader fileReader = new FileReader(labelsFileName + "_labels.txt");
-                         BufferedReader bufferedReader = new BufferedReader(fileReader)
-                    ) {
-                        List<String> labelsList = bufferedReader.lines().toList();
+
+                    try (BufferedReader reader = new BufferedReader(new FileReader(labelsFileName))) {
+                        List<String> labelsList = reader.lines().toList();
                         if (labelsList.size() > 0) {
                             try {
                                 labelsList.forEach(line -> {
                                     List<Double> objDatalist =
-                                            Arrays.stream(line.split(" "))
-                                                    .map(Double::valueOf).toList();
+                                            Arrays.stream(line.split(" ")).map(Double::valueOf).toList();
                                     Rectangle rectangle = new Rectangle();
                                     rectangle.setX(objDatalist.get(0) -
                                             objDatalist.get(2) / 2);
@@ -99,6 +96,16 @@ public class Main extends Application {
                                     rectangle.setStrokeWidth(3.0);
                                     rectanglesPane.getChildren().add(rectangle);
                                 });
+                                Rectangle rectangle = new Rectangle(
+                                        0.0,
+                                        0.0,
+                                        rectanglesPane.getMaxWidth(),
+                                        rectanglesPane.getMaxHeight()
+                                );
+                                rectangle.setFill(Color.TRANSPARENT);
+                                rectangle.setStroke(Color.BLACK);
+                                rectangle.setStrokeWidth(3.0);
+                                rectanglesPane.getChildren().add(rectangle);
                             } catch (IndexOutOfBoundsException | NumberFormatException e) {
                                 showAlert("Stroking objects", "The file has incorrect data!");
                             }
