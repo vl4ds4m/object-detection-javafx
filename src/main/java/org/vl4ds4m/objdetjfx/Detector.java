@@ -103,18 +103,6 @@ public class Detector {
                 }
                 writer.newLine();
             }
-
-            /*sparseObjectsList.forEach(data -> {
-                try {
-                    System.out.println(data);
-                    for (int i = 0; i < 5; ++i) {
-                        writer.write(data.get(i) + " ");
-                    }
-                    writer.newLine();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });*/
         }
 
         return labelsFileName;

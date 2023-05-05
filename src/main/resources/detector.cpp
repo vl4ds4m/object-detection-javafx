@@ -11,7 +11,8 @@ JNIEXPORT void JNICALL Java_org_vl4ds4m_objdetjfx_Detector_getBoundedBoxes(JNIEn
     const int NUM_OF_CLASSES = 5;
     const int IMAGE_SIDE = 640;
 
-    cv::dnn::Net net(cv::dnn::readNetFromONNX("/home/vladsam/Projects/object-detection-javafx/net.onnx"));
+    cv::dnn::Net net(cv::dnn::readNetFromONNX(
+        "/home/vladsam/Projects/object-detection-javafx/src/main/resources/net.onnx"));
 
     cv::Mat origin_image(cv::imread(image_file_name));
     cv::Mat resized_image(cv::Size(IMAGE_SIDE, IMAGE_SIDE), cv::rawType<cv::Vec3b>());
