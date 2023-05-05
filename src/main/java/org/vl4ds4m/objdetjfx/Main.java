@@ -15,6 +15,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.vl4ds4m.objdetjfx.test.Test;
 
 import java.io.*;
 import java.util.Arrays;
@@ -50,13 +51,18 @@ public class Main extends Application {
                 try {
                     Image image = new Image(new FileInputStream(imageFileName));
                     if (!image.isError()) {
-                        imageView.setImage(image);
-                        rectanglesPane.setMaxHeight(image.getHeight());
-                        rectanglesPane.setMaxWidth(image.getWidth());
-                        rectanglesPane.getChildren().clear();
-                        isRectanglesDrawn = false;
+                        if (Double.max(image.getWidth(), image.getHeight()) > 640.0) {
+                            showAlert("Loading an image",
+                                    "The image resolution should be not greater than 640x640");
+                        } else {
+                            imageView.setImage(image);
+                            rectanglesPane.setMaxHeight(image.getHeight());
+                            rectanglesPane.setMaxWidth(image.getWidth());
+                            rectanglesPane.getChildren().clear();
+                            isRectanglesDrawn = false;
+                        }
                     } else {
-                        showAlert("Can't open the file.", "The file isn't an image!");
+                        showAlert("Loading an image", "The file isn't an image!");
                     }
                 } catch (FileNotFoundException e) {
                     showAlert("Loading an image", "No image exists!");
@@ -170,6 +176,7 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
+        Test.test();
         Application.launch(args);
     }
 }
