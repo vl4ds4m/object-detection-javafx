@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class Detector {
     static {
-        System.loadLibrary("Detector");
+        System.loadLibrary("detector");
     }
 
     private static final double CONFIDENCE_THRESHOLD = 0.25;
@@ -62,7 +62,7 @@ public class Detector {
                 }
             });
 
-            sparseObjectsList.sort((a, b) -> (int) (a.get(0) - b.get(0)));
+            sparseObjectsList.sort((a, b) -> Math.toIntExact(Math.round(a.get(0) - b.get(0))));
 
             if (sparseObjectsList.size() > 0) {
                 int uniqueObjectIndex = 0;

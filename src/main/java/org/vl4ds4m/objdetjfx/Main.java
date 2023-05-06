@@ -15,11 +15,11 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.vl4ds4m.objdetjfx.test.Test;
 
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class Main extends Application {
     private static final String FXML_PATH = "/properties.fxml";
@@ -31,16 +31,6 @@ public class Main extends Application {
     private boolean isRectanglesDrawn = false;
     private final Button imageAdditionButton = new Button();
     private final Button objectsDetectionButton = new Button();
-
-    private GridPane loadRootLayout() {
-        try {
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource(FXML_PATH));
-            return loader.load();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     private void handleImageLoader(Stage stage) {
         imageAdditionButton.setOnAction(actionEvent -> {
@@ -139,9 +129,9 @@ public class Main extends Application {
     }
 
     @Override
-    public void start(Stage stage) {
+    public void start(Stage stage) throws Exception {
         // Create layers
-        GridPane root = loadRootLayout();
+        GridPane root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(FXML_PATH)));
         VBox buttonsBox = new VBox();
         Label imageLabel = new Label("Your image");
 
@@ -176,7 +166,6 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
-        Test.test();
         Application.launch(args);
     }
 }
