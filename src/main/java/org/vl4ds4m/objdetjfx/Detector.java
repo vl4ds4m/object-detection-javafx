@@ -2,7 +2,6 @@ package org.vl4ds4m.objdetjfx;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.opencv.core.Mat;
@@ -40,39 +39,31 @@ public class Detector {
      * @param imageFileName the name of image file
      */
     public static String detectObjectsOnImage(String imageFileName) throws IOException {
-        writeHBBToFile(imageFileName);
-
         final String labelsFileName = getLabelsFileName(imageFileName);
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(labelsFileName));
-             BufferedWriter writer = new BufferedWriter(new FileWriter(labelsFileName))
-        ) {
-            List<List<Double>> fullObjectsList = new ArrayList<>(reader.lines().map(
-                    line -> Arrays.stream(line.split(" ")).map(Double::valueOf).toList()
-            ).toList());
+        List<List<Double>> fullObjectsList = writeHBBToFile(imageFileName).stream().map(data -> {
+            List<Double> result = new ArrayList<>(5);
+            for (int i = 0; i < 4; ++i) {
+                result.add(data.get(i));
+            }
+            double maxConfidence = data.get(4);
+            for (int i = 5; i < data.size(); ++i) {
+                maxConfidence = Double.max(maxConfidence, data.get(i));
+            }
+            result.add(maxConfidence);
+            return result;
+        }).toList();
 
-            fullObjectsList = fullObjectsList.stream().map(data -> {
-                List<Double> result = new ArrayList<>(5);
-                for (int i = 0; i < 4; ++i) {
-                    result.add(data.get(i));
-                }
-                double maxConfidence = data.get(4);
-                for (int i = 5; i < data.size(); ++i) {
-                    maxConfidence = Double.max(maxConfidence, data.get(i));
-                }
-                result.add(maxConfidence);
-                return result;
-            }).toList();
+        List<List<Double>> sparseObjectsList = new ArrayList<>();
+        fullObjectsList.forEach(data -> {
+            if (data.get(4) > CONFIDENCE_THRESHOLD) {
+                sparseObjectsList.add(data);
+            }
+        });
 
-            List<List<Double>> sparseObjectsList = new ArrayList<>();
-            fullObjectsList.forEach(data -> {
-                if (data.get(4) > CONFIDENCE_THRESHOLD) {
-                    sparseObjectsList.add(data);
-                }
-            });
+        sparseObjectsList.sort((a, b) -> Math.toIntExact(Math.round(a.get(0) - b.get(0))));
 
-            sparseObjectsList.sort((a, b) -> Math.toIntExact(Math.round(a.get(0) - b.get(0))));
-
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(labelsFileName))) {
             if (sparseObjectsList.size() > 0) {
                 int uniqueObjectIndex = 0;
                 boolean isEqual;
@@ -117,7 +108,7 @@ public class Detector {
         return labelsFileName;
     }
 
-    private static void writeHBBToFile(String imageFileName) throws IOException {
+    private static List<List<Double>> writeHBBToFile(String imageFileName) {
         Net net = Dnn.readNetFromONNX("net.onnx");
 
         Mat originImage = imread(imageFileName);
@@ -137,14 +128,15 @@ public class Detector {
 
         Mat netOutput = net.forward().reshape(0, 4 + NUM_OF_CLASSES).t();
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(getLabelsFileName(imageFileName)))) {
-            for (int i = 0; i < netOutput.rows(); ++i) {
-                for (int j = 0; j < netOutput.cols(); ++j) {
-                    writer.write(netOutput.get(i, j)[0] + " ");
-                }
-                writer.newLine();
+        List<List<Double>> objectsList = new ArrayList<>(netOutput.rows());
+        for (int i = 0; i < netOutput.rows(); ++i) {
+            objectsList.add(new ArrayList<>(netOutput.cols()));
+            for (int j = 0; j < netOutput.cols(); ++j) {
+                objectsList.get(i).add(netOutput.get(i, j)[0]);
             }
         }
+
+        return objectsList;
     }
 
     private static String getLabelsFileName(String imageFileName) {
