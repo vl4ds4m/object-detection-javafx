@@ -5,16 +5,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.opencv.core.Mat;
+import org.opencv.dnn.Dnn;
+import org.opencv.dnn.Net;
+
+import static org.opencv.imgcodecs.Imgcodecs.imread;
+import static org.opencv.core.CvType.CV_8UC3;
+
+
 /**
  * This class performs directly object detection on the passing image
  */
 public class Detector {
     static {
-        System.loadLibrary("detector");
+        nu.pattern.OpenCV.loadLocally();
     }
 
     private static final double CONFIDENCE_THRESHOLD = 0.25;
     private static final double EPS = 5.0;
+    private static final int NUM_OF_CLASSES = 5;
+    private static final int IMAGE_SIDE = 640;
 
     /**
      * The main method of objects detection on the image. It gets the name of the image file and
@@ -108,5 +118,35 @@ public class Detector {
         return labelsFileName;
     }
 
-    native private static void getBoundedBoxes(String imageFileName);
+    private static void getBoundedBoxes(String imageFileName) throws IOException {
+        Net net = Dnn.readNetFromONNX("net.onnx");
+
+        Mat originImage = imread(imageFileName);
+        Mat resizedImage = new Mat(IMAGE_SIDE, IMAGE_SIDE, CV_8UC3);
+
+        for (int i = 0; i < IMAGE_SIDE; ++i) {
+            for (int j = 0; j < IMAGE_SIDE; ++j) {
+                if (i < originImage.rows() && j < originImage.cols()) {
+                    resizedImage.put(i, j, originImage.get(i, j));
+                } else {
+                    resizedImage.put(i, j, 0.0, 0.0, 0.0);
+                }
+            }
+        }
+
+        net.setInput(Dnn.blobFromImage(resizedImage, 1.0 / 255.0));
+
+        Mat netOutput = net.forward().reshape(0, 4 + NUM_OF_CLASSES).t();
+
+        try (BufferedWriter writer = new BufferedWriter(
+                new FileWriter(imageFileName.split("\\.", 2)[0] + "_RAW.txt"))
+        ) {
+            for (int i = 0; i < netOutput.rows(); ++i) {
+                for (int j = 0; j < netOutput.cols(); ++j) {
+                    writer.write(netOutput.get(i, j)[0] + " ");
+                }
+                writer.newLine();
+            }
+        }
+    }
 }
