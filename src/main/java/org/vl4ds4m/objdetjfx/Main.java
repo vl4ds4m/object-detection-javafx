@@ -158,8 +158,8 @@ public class Main extends Application {
 
         // Set a scene
         stage.setScene(new Scene(root));
-        stage.setMinWidth(root.getPrefWidth());
-        stage.setMinHeight(root.getPrefHeight());
+        stage.setMinWidth(root.getMinWidth());
+        stage.setMinHeight(root.getMinHeight());
         stage.setTitle(TITLE);
 
         stage.show();
