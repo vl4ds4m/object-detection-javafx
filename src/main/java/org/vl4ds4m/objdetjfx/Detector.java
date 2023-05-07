@@ -25,6 +25,7 @@ public class Detector {
     private static final double EPS = 5.0;
     private static final int NUM_OF_CLASSES = 5;
     private static final int IMAGE_SIDE = 640;
+    private static final String OUT_FILE_SUFFIX = "_labels.txt";
 
     /**
      * The main method of objects detection on the image. It gets the name of the image file and
@@ -39,13 +40,11 @@ public class Detector {
      * @param imageFileName the name of image file
      */
     public static String detectObjectsOnImage(String imageFileName) throws IOException {
-        getBoundedBoxes(imageFileName);
+        writeHBBToFile(imageFileName);
 
-        final String fileName = imageFileName.split("\\.", 2)[0];
-        final String rawLabelsFileName = fileName + "_RAW.txt";
-        final String labelsFileName = fileName + "_labels.txt";
+        final String labelsFileName = getLabelsFileName(imageFileName);
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(rawLabelsFileName));
+        try (BufferedReader reader = new BufferedReader(new FileReader(labelsFileName));
              BufferedWriter writer = new BufferedWriter(new FileWriter(labelsFileName))
         ) {
             List<List<Double>> fullObjectsList = new ArrayList<>(reader.lines().map(
@@ -118,7 +117,7 @@ public class Detector {
         return labelsFileName;
     }
 
-    private static void getBoundedBoxes(String imageFileName) throws IOException {
+    private static void writeHBBToFile(String imageFileName) throws IOException {
         Net net = Dnn.readNetFromONNX("net.onnx");
 
         Mat originImage = imread(imageFileName);
@@ -138,9 +137,7 @@ public class Detector {
 
         Mat netOutput = net.forward().reshape(0, 4 + NUM_OF_CLASSES).t();
 
-        try (BufferedWriter writer = new BufferedWriter(
-                new FileWriter(imageFileName.split("\\.", 2)[0] + "_RAW.txt"))
-        ) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(getLabelsFileName(imageFileName)))) {
             for (int i = 0; i < netOutput.rows(); ++i) {
                 for (int j = 0; j < netOutput.cols(); ++j) {
                     writer.write(netOutput.get(i, j)[0] + " ");
@@ -148,5 +145,9 @@ public class Detector {
                 writer.newLine();
             }
         }
+    }
+
+    private static String getLabelsFileName(String imageFileName) {
+        return imageFileName.split("\\.", 2)[0] + OUT_FILE_SUFFIX;
     }
 }
