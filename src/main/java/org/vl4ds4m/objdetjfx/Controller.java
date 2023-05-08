@@ -2,6 +2,7 @@ package org.vl4ds4m.objdetjfx;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
@@ -27,12 +28,10 @@ public class Controller {
     private ImageView imageView;
     @FXML
     private Pane boundedBoxesPane;
+    @FXML
+    private Label objectsCounter;
     private String imageFileName = "";
     private boolean isBoundedBoxesDrawn = false;
-
-    @FXML
-    private void initialize() {
-    }
 
     @FXML
     private void loadImage() {
@@ -51,6 +50,7 @@ public class Controller {
                         boundedBoxesPane.setMaxHeight(image.getHeight());
                         boundedBoxesPane.setMaxWidth(image.getWidth());
                         boundedBoxesPane.getChildren().clear();
+                        objectsCounter.setText("-");
                         isBoundedBoxesDrawn = false;
                     }
                 } else {
@@ -82,33 +82,29 @@ public class Controller {
     private void strokeBoundedBoxes(String labelsFileName) {
         try (BufferedReader reader = new BufferedReader(new FileReader(labelsFileName))) {
             List<String> labelsList = reader.lines().toList();
-            if (labelsList.size() > 0) {
-                try {
-                    labelsList.forEach(line -> {
-                        List<Double> data = Arrays.stream(line.split(" ")).map(Double::valueOf).toList();
-                        Rectangle rectangle = new Rectangle(
-                                data.get(0) - data.get(2) / 2,
-                                data.get(1) - data.get(3) / 2,
-                                data.get(2), data.get(3));
-                        rectangle.setFill(Color.TRANSPARENT);
-                        rectangle.setStroke(Color.RED);
-                        rectangle.setStrokeWidth(3.0);
-                        boundedBoxesPane.getChildren().add(rectangle);
-                    });
-                    Rectangle rectangle = new Rectangle(0.0, 0.0,
-                            boundedBoxesPane.getMaxWidth(),
-                            boundedBoxesPane.getMaxHeight());
+            try {
+                labelsList.forEach(line -> {
+                    List<Double> data = Arrays.stream(line.split(" ")).map(Double::valueOf).toList();
+                    Rectangle rectangle = new Rectangle(
+                            data.get(0) - data.get(2) / 2,
+                            data.get(1) - data.get(3) / 2,
+                            data.get(2), data.get(3));
                     rectangle.setFill(Color.TRANSPARENT);
-                    rectangle.setStroke(Color.BLACK);
+                    rectangle.setStroke(Color.RED);
                     rectangle.setStrokeWidth(3.0);
                     boundedBoxesPane.getChildren().add(rectangle);
-                    isBoundedBoxesDrawn = true;
-                } catch (IndexOutOfBoundsException | NumberFormatException e) {
-                    showAlert("Objects detection", "The data file has incorrect data!");
-                }
-            } else {
-                showAlert("Objects detection", "No object is detected on the image!");
+                });
+                Rectangle rectangle = new Rectangle(0.0, 0.0,
+                        boundedBoxesPane.getMaxWidth(),
+                        boundedBoxesPane.getMaxHeight());
+                rectangle.setFill(Color.TRANSPARENT);
+                rectangle.setStroke(Color.BLACK);
+                rectangle.setStrokeWidth(3.0);
+                boundedBoxesPane.getChildren().add(rectangle);
+                objectsCounter.setText(String.valueOf(labelsList.size()));
                 isBoundedBoxesDrawn = true;
+            } catch (IndexOutOfBoundsException | NumberFormatException e) {
+                showAlert("Objects detection", "The data file has incorrect data!");
             }
         } catch (FileNotFoundException e) {
             showAlert("Objects detection", "No data file exists!");

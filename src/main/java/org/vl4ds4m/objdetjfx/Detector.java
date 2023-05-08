@@ -20,7 +20,7 @@ public class Detector {
     }
 
     private static final double CONFIDENCE_THRESHOLD = 0.25;
-    private static final double EPS = 5.0;
+    private static final double EPS = 10.0;
     private static final int NUM_OF_CLASSES = 5;
     private static final int IMAGE_SIDE = 640;
     private static final String OUT_FILE_SUFFIX = "_labels.txt";

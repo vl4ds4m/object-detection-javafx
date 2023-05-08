@@ -27,9 +27,22 @@
         <Pane fx:id="boundedBoxesPane"/>
     </StackPane>
 
-    <VBox alignment="CENTER" spacing="10.0" GridPane.columnIndex="1">
-        <Button text="Load an image" onMouseClicked="#loadImage"/>
-        <Button text="Stroke objects" onMouseClicked="#detectObjects"/>
-    </VBox>
+    <AnchorPane GridPane.columnIndex="1">
+
+        <Button onMouseClicked="#loadImage" text="Load an image" AnchorPane.leftAnchor="10.0"
+                AnchorPane.topAnchor="20.0"/>
+
+        <Button onMouseClicked="#detectObjects" text="Stroke objects" AnchorPane.leftAnchor="10.0"
+                AnchorPane.topAnchor="50.0"/>
+
+        <Label fx:id="objectsCounter" text="-" AnchorPane.leftAnchor="70.0" AnchorPane.topAnchor="330.0">
+            <font>
+                <Font size="20.0"/>
+            </font>
+        </Label>
+
+        <Label text="Number of objects" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="300.0"/>
+
+    </AnchorPane>
 
 </GridPane>
