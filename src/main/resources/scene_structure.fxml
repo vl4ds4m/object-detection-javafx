@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
 <GridPane alignment="CENTER" gridLinesVisible="true" hgap="10.0" minHeight="700.0" minWidth="850.0"
           xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
@@ -13,5 +16,20 @@
     <rowConstraints>
         <RowConstraints minHeight="650.0"/>
     </rowConstraints>
+
+    <StackPane fx:id="visualPane" GridPane.columnIndex="0">
+        <Label text="Your image">
+            <font>
+                <Font size="20.0"/>
+            </font>
+        </Label>
+        <ImageView fx:id="imageView"/>
+        <Pane fx:id="boundedBoxesPane"/>
+    </StackPane>
+
+    <VBox alignment="CENTER" spacing="10.0" GridPane.columnIndex="1">
+        <Button text="Load an image" onMouseClicked="#loadImage"/>
+        <Button text="Stroke objects" onMouseClicked="#detectObjects"/>
+    </VBox>
 
 </GridPane>

@@ -9,7 +9,6 @@ import org.opencv.dnn.Dnn;
 import org.opencv.dnn.Net;
 
 import static org.opencv.imgcodecs.Imgcodecs.imread;
-import static org.opencv.core.CvType.CV_8UC3;
 
 
 /**
@@ -41,7 +40,7 @@ public class Detector {
     public static String detectObjectsOnImage(String imageFileName) throws IOException {
         final String labelsFileName = getLabelsFileName(imageFileName);
 
-        List<List<Double>> fullObjectsList = writeHBBToFile(imageFileName).stream().map(data -> {
+        List<List<Double>> fullObjectsList = writeHBBToList(imageFileName).stream().map(data -> {
             List<Double> result = new ArrayList<>(5);
             for (int i = 0; i < 4; ++i) {
                 result.add(data.get(i));
@@ -108,11 +107,11 @@ public class Detector {
         return labelsFileName;
     }
 
-    private static List<List<Double>> writeHBBToFile(String imageFileName) {
+    private static List<List<Double>> writeHBBToList(String imageFileName) {
         Net net = Dnn.readNetFromONNX("net.onnx");
 
         Mat originImage = imread(imageFileName);
-        Mat resizedImage = new Mat(IMAGE_SIDE, IMAGE_SIDE, CV_8UC3);
+        Mat resizedImage = new Mat(IMAGE_SIDE, IMAGE_SIDE, originImage.type());
 
         for (int i = 0; i < IMAGE_SIDE; ++i) {
             for (int j = 0; j < IMAGE_SIDE; ++j) {
