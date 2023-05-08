@@ -20,7 +20,7 @@ public class Detector {
     }
 
     private static final double CONFIDENCE_THRESHOLD = 0.25;
-    private static final double EPS = 10.0;
+    private static final double IOU_THRESHOLD = 0.25;
     private static final int NUM_OF_CLASSES = 5;
     private static final int IMAGE_SIDE = 640;
     private static final String OUT_FILE_SUFFIX = "_labels.txt";
@@ -60,47 +60,23 @@ public class Detector {
             }
         });
 
-        sparseObjectsList.sort((a, b) -> Math.toIntExact(Math.round(a.get(0) - b.get(0))));
-
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(labelsFileName))) {
-            if (sparseObjectsList.size() > 0) {
-                int uniqueObjectIndex = 0;
-                boolean isEqual;
-                for (int i = 1; i < sparseObjectsList.size(); ++i) {
-                    isEqual = true;
-                    for (int j = 0; j < 2; ++j) {
-                        if (Math.abs(sparseObjectsList.get(i).get(j) - sparseObjectsList.get(i - 1).get(j)) > EPS) {
-                            isEqual = false;
-                            break;
-                        }
-                    }
-                    if (!isEqual) {
-                        int bestObjectIndex = uniqueObjectIndex;
-                        double maxConfidence = sparseObjectsList.get(uniqueObjectIndex).get(4);
-                        for (int j = uniqueObjectIndex + 1; j < i; ++j) {
-                            if (sparseObjectsList.get(j).get(4) > maxConfidence) {
-                                maxConfidence = sparseObjectsList.get(j).get(4);
-                                bestObjectIndex = j;
-                            }
-                        }
-                        for (double num : sparseObjectsList.get(bestObjectIndex)) {
-                            writer.write(num + " ");
-                        }
-                        writer.newLine();
-                        uniqueObjectIndex = i;
+            List<List<Double>> finalObjectsList = new ArrayList<>();
+            for (List<Double> checkedItem : sparseObjectsList) {
+                boolean isNew = true;
+                for (List<Double> finalItem : finalObjectsList) {
+                    if (calculateIOU(checkedItem, finalItem) > IOU_THRESHOLD) {
+                        isNew = false;
+                        break;
                     }
                 }
-                double maxConfidence = sparseObjectsList.get(uniqueObjectIndex).get(4);
-                for (int j = uniqueObjectIndex + 1; j < sparseObjectsList.size(); ++j) {
-                    if (sparseObjectsList.get(j).get(4) > maxConfidence) {
-                        maxConfidence = sparseObjectsList.get(j).get(4);
-                        uniqueObjectIndex = j;
+                if (isNew) {
+                    finalObjectsList.add(checkedItem);
+                    for (double num : checkedItem) {
+                        writer.write(num + " ");
                     }
+                    writer.newLine();
                 }
-                for (double num : sparseObjectsList.get(uniqueObjectIndex)) {
-                    writer.write(num + " ");
-                }
-                writer.newLine();
             }
         }
 
@@ -140,5 +116,31 @@ public class Detector {
 
     private static String getLabelsFileName(String imageFileName) {
         return imageFileName.split("\\.", 2)[0] + OUT_FILE_SUFFIX;
+    }
+
+    private static double calculateIOU(List<Double> a, List<Double> b) {
+        double aXMin = a.get(0) - a.get(2) / 2;
+        double aXMax = a.get(0) + a.get(2) / 2;
+        double aYMin = a.get(1) - a.get(3) / 2;
+        double aYMax = a.get(1) + a.get(3) / 2;
+        double bXMin = b.get(0) - b.get(2) / 2;
+        double bXMax = b.get(0) + b.get(2) / 2;
+        double bYMin = b.get(1) - b.get(3) / 2;
+        double bYMax = b.get(1) + b.get(3) / 2;
+
+        if (aXMax < bXMin || bXMax < aXMin || aYMax < bYMin || bYMax < aYMin) {
+            return 0.0;
+        }
+
+        double cXMin = Double.max(aXMin, bXMin);
+        double cXMax = Double.min(aXMax, bXMax);
+        double cYMin = Double.max(aYMin, bYMin);
+        double cYMax = Double.min(aYMax, bYMax);
+
+        double aSquare = (aXMax - aXMin) * (aYMax - aYMin);
+        double bSquare = (bXMax - bXMin) * (bYMax - bYMin);
+        double cSquare = (cXMax - cXMin) * (cYMax - cYMin);
+
+        return cSquare / (aSquare + bSquare - cSquare);
     }
 }
