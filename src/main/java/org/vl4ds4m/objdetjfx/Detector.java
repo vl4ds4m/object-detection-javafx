@@ -2,6 +2,7 @@ package org.vl4ds4m.objdetjfx;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.opencv.core.Mat;
@@ -100,6 +101,26 @@ public class Detector {
         }
 
         net.setInput(Dnn.blobFromImage(resizedImage, 1.0 / 255.0));
+
+        Mat testMat = Dnn.blobFromImage(resizedImage, 1.0 / 255.0);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(imageFileName + "_TEST.txt"))) {
+            for (int i = 0; i < 1; ++i) {
+                for (int j = 0; j < 3; ++j) {
+                    for (int k = 0; k < IMAGE_SIDE; ++k) {
+                        for (int t = 0; t < IMAGE_SIDE; ++t) {
+                            writer.write(Arrays.toString(testMat.get(new int[]{i, j, k, t})) + " ");
+                        }
+                        writer.newLine();
+                        writer.newLine();
+                    }
+                    writer.write("New Color");
+                    writer.newLine();
+                    writer.newLine();
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         Mat netOutput = net.forward().reshape(0, 4 + NUM_OF_CLASSES).t();
 
