@@ -2,6 +2,7 @@ package org.vl4ds4m.objdetjfx;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.opencv.core.Mat;
@@ -88,6 +89,17 @@ public class Detector {
 
         Mat originImage = imread(imageFileName);
         Mat resizedImage = new Mat(IMAGE_SIDE, IMAGE_SIDE, originImage.type());
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(imageFileName + "_TEST.txt"))) {
+            for (int i = 0; i < originImage.rows(); ++i) {
+                for (int j = 0; j < originImage.cols(); ++j) {
+                    writer.write(Arrays.toString(originImage.get(i, j)) + " ");
+                }
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         for (int i = 0; i < IMAGE_SIDE; ++i) {
             for (int j = 0; j < IMAGE_SIDE; ++j) {
