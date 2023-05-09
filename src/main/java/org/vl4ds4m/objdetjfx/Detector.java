@@ -8,6 +8,7 @@ import java.util.List;
 import org.opencv.core.Mat;
 import org.opencv.dnn.Dnn;
 import org.opencv.dnn.Net;
+import org.opencv.highgui.HighGui;
 
 import static org.opencv.imgcodecs.Imgcodecs.imread;
 
@@ -121,6 +122,9 @@ public class Detector {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        HighGui.imshow("", originImage);
+        HighGui.waitKey();
 
         Mat netOutput = net.forward().reshape(0, 4 + NUM_OF_CLASSES).t();
 
