@@ -64,9 +64,12 @@ public class Detector {
             List<List<Double>> finalObjectsList = new ArrayList<>();
             for (List<Double> checkedItem : sparseObjectsList) {
                 boolean isNew = true;
-                for (List<Double> finalItem : finalObjectsList) {
-                    if (calculateIOU(checkedItem, finalItem) > IOU_THRESHOLD) {
+                for (int i = 0; i < finalObjectsList.size(); ++i) {
+                    if (calculateIOU(checkedItem, finalObjectsList.get(i)) > IOU_THRESHOLD) {
                         isNew = false;
+                        if (checkedItem.get(4) > finalObjectsList.get(i).get(4)) {
+                            finalObjectsList.set(i, checkedItem);
+                        }
                         break;
                     }
                 }
