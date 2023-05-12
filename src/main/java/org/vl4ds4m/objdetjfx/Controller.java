@@ -12,7 +12,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -79,37 +78,29 @@ public class Controller {
         }
     }
 
-    private void strokeBoundedBoxes(String labelsFileName) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(labelsFileName))) {
-            List<String> labelsList = reader.lines().toList();
-            try {
-                labelsList.forEach(line -> {
-                    List<Double> data = Arrays.stream(line.split(" ")).map(Double::valueOf).toList();
-                    Rectangle rectangle = new Rectangle(
-                            data.get(0) - data.get(2) / 2,
-                            data.get(1) - data.get(3) / 2,
-                            data.get(2), data.get(3));
-                    rectangle.setFill(Color.TRANSPARENT);
-                    rectangle.setStroke(Color.RED);
-                    rectangle.setStrokeWidth(3.0);
-                    boundedBoxesPane.getChildren().add(rectangle);
-                });
-                Rectangle rectangle = new Rectangle(0.0, 0.0,
-                        boundedBoxesPane.getMaxWidth(),
-                        boundedBoxesPane.getMaxHeight());
+    private void strokeBoundedBoxes(List<List<Double>> labelsList) {
+        try {
+            labelsList.forEach(data -> {
+                Rectangle rectangle = new Rectangle(
+                        data.get(0) - data.get(2) / 2,
+                        data.get(1) - data.get(3) / 2,
+                        data.get(2), data.get(3));
                 rectangle.setFill(Color.TRANSPARENT);
-                rectangle.setStroke(Color.BLACK);
+                rectangle.setStroke(Color.RED);
                 rectangle.setStrokeWidth(3.0);
                 boundedBoxesPane.getChildren().add(rectangle);
-                objectsCounter.setText(String.valueOf(labelsList.size()));
-                isBoundedBoxesDrawn = true;
-            } catch (IndexOutOfBoundsException | NumberFormatException e) {
-                showAlert("Objects detection", "The data file has incorrect data!");
-            }
-        } catch (FileNotFoundException e) {
-            showAlert("Objects detection", "No data file exists!");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            });
+            Rectangle rectangle = new Rectangle(0.0, 0.0,
+                    boundedBoxesPane.getMaxWidth(),
+                    boundedBoxesPane.getMaxHeight());
+            rectangle.setFill(Color.TRANSPARENT);
+            rectangle.setStroke(Color.BLACK);
+            rectangle.setStrokeWidth(3.0);
+            boundedBoxesPane.getChildren().add(rectangle);
+            objectsCounter.setText(String.valueOf(labelsList.size()));
+            isBoundedBoxesDrawn = true;
+        } catch (IndexOutOfBoundsException | NumberFormatException e) {
+            showAlert("Objects detection", "The data file has incorrect data!");
         }
     }
 

@@ -37,7 +37,7 @@ public class Detector {
      *
      * @param imageFileName the name of image file
      */
-    public static String detectObjectsOnImage(String imageFileName) throws IOException {
+    public static List<List<Double>> detectObjectsOnImage(String imageFileName) throws IOException {
         final String labelsFileName = getLabelsFileName(imageFileName);
 
         List<List<Double>> fullObjectsList = writeHBBToList(imageFileName).stream().map(data -> {
@@ -60,8 +60,8 @@ public class Detector {
             }
         });
 
+        List<List<Double>> finalObjectsList = new ArrayList<>();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(labelsFileName))) {
-            List<List<Double>> finalObjectsList = new ArrayList<>();
             for (List<Double> checkedItem : sparseObjectsList) {
                 boolean isNew = true;
                 for (int i = 0; i < finalObjectsList.size(); ++i) {
@@ -83,7 +83,7 @@ public class Detector {
             }
         }
 
-        return labelsFileName;
+        return finalObjectsList;
     }
 
     private static List<List<Double>> writeHBBToList(String imageFileName) {
