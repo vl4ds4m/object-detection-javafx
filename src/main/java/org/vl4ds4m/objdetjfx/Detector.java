@@ -1,6 +1,5 @@
 package org.vl4ds4m.objdetjfx;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +17,6 @@ class Detector {
     private static final double CONFIDENCE_THRESHOLD = 0.25;
     private static final double IOU_THRESHOLD = 0.25;
     private static final int IMAGE_SIDE = 640;
-    private static final String OUT_FILE_SUFFIX = "_labels.txt";
 
     static {
         nu.pattern.OpenCV.loadLocally();
@@ -36,9 +34,7 @@ class Detector {
      *
      * @param imageFileName the name of image file
      */
-    static List<ObjectData> detectObjectsOnImage(String imageFileName) throws IOException {
-        final String labelsFileName = imageFileName.split("\\.", 2)[0] + OUT_FILE_SUFFIX;
-
+    static List<ObjectData> detectObjectsOnImage(String imageFileName) {
         // select objects with good net confidence.
         List<ObjectData> sparseObjectsList = new ArrayList<>();
         writeHBBToList(imageFileName).forEach(objectData -> {
@@ -69,27 +65,19 @@ class Detector {
         });
 
         List<ObjectData> finalObjectsList = new ArrayList<>();
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(labelsFileName))) {
-            for (ObjectData checkedItem : sparseObjectsList) {
-                boolean isNew = true;
-                for (int i = 0; i < finalObjectsList.size(); ++i) {
-                    if (calculateIOU(checkedItem, finalObjectsList.get(i)) > IOU_THRESHOLD) {
-                        isNew = false;
-                        if (checkedItem.confidence() > finalObjectsList.get(i).confidence()) {
-                            finalObjectsList.set(i, checkedItem);
-                        }
-                        break;
+        for (ObjectData objectData : sparseObjectsList) {
+            boolean isNew = true;
+            for (int i = 0; i < finalObjectsList.size(); ++i) {
+                if (calculateIOU(objectData, finalObjectsList.get(i)) > IOU_THRESHOLD) {
+                    isNew = false;
+                    if (objectData.confidence() > finalObjectsList.get(i).confidence()) {
+                        finalObjectsList.set(i, objectData);
                     }
+                    break;
                 }
-                if (isNew) {
-                    finalObjectsList.add(checkedItem);
-                    writer.write(checkedItem.X_CENTER() + " " +
-                            checkedItem.Y_CENTER() + " " +
-                            checkedItem.WIDTH() + " " +
-                            checkedItem.HEIGHT() + " " +
-                            checkedItem.confidence());
-                    writer.newLine();
-                }
+            }
+            if (isNew) {
+                finalObjectsList.add(objectData);
             }
         }
 

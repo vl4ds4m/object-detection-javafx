@@ -18,13 +18,17 @@
     </rowConstraints>
 
     <StackPane fx:id="visualPane" GridPane.columnIndex="0">
+
         <Label text="Your image">
             <font>
                 <Font size="20.0"/>
             </font>
         </Label>
+
         <ImageView fx:id="imageView"/>
+
         <Pane fx:id="boundedBoxesPane"/>
+
     </StackPane>
 
     <AnchorPane GridPane.columnIndex="1">
@@ -34,6 +38,9 @@
 
         <Button onMouseClicked="#detectObjects" text="Stroke objects" AnchorPane.leftAnchor="10.0"
                 AnchorPane.topAnchor="50.0"/>
+
+        <Button onMouseClicked="#writeLabelsToFile" text="Write labels to file" AnchorPane.leftAnchor="10.0"
+                AnchorPane.topAnchor="80.0"/>
 
         <Label fx:id="objectsCounter" text="-" AnchorPane.leftAnchor="70.0" AnchorPane.topAnchor="330.0">
             <font>
