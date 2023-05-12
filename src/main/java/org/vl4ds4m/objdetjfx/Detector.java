@@ -14,16 +14,15 @@ import static org.opencv.imgcodecs.Imgcodecs.imread;
 /**
  * This class performs directly object detection on the passing image
  */
-public class Detector {
+class Detector {
+    private static final double CONFIDENCE_THRESHOLD = 0.25;
+    private static final double IOU_THRESHOLD = 0.25;
+    private static final int IMAGE_SIDE = 640;
+    private static final String OUT_FILE_SUFFIX = "_labels.txt";
+
     static {
         nu.pattern.OpenCV.loadLocally();
     }
-
-    private static final double CONFIDENCE_THRESHOLD = 0.25;
-    private static final double IOU_THRESHOLD = 0.25;
-    private static final int NUM_OF_CLASSES = 5;
-    private static final int IMAGE_SIDE = 640;
-    private static final String OUT_FILE_SUFFIX = "_labels.txt";
 
     /**
      * The main method of objects detection on the image. It gets the name of the image file and
@@ -37,37 +36,46 @@ public class Detector {
      *
      * @param imageFileName the name of image file
      */
-    public static List<List<Double>> detectObjectsOnImage(String imageFileName) throws IOException {
-        final String labelsFileName = getLabelsFileName(imageFileName);
+    static List<ObjectData> detectObjectsOnImage(String imageFileName) throws IOException {
+        final String labelsFileName = imageFileName.split("\\.", 2)[0] + OUT_FILE_SUFFIX;
 
-        List<List<Double>> fullObjectsList = writeHBBToList(imageFileName).stream().map(data -> {
-            List<Double> result = new ArrayList<>(5);
-            for (int i = 0; i < 4; ++i) {
-                result.add(data.get(i));
-            }
-            double maxConfidence = data.get(4);
-            for (int i = 5; i < data.size(); ++i) {
-                maxConfidence = Double.max(maxConfidence, data.get(i));
-            }
-            result.add(maxConfidence);
-            return result;
-        }).toList();
+        // select objects with good net confidence.
+        List<ObjectData> sparseObjectsList = new ArrayList<>();
+        writeHBBToList(imageFileName).forEach(objectData -> {
+            int maxConfidenceIndex = 4;
+            double maxConfidence = objectData.get(maxConfidenceIndex);
+            for (int i = maxConfidenceIndex + 1; i < objectData.size(); ++i) {
+                if (objectData.get(i) > maxConfidence) {
+                    maxConfidence = objectData.get(i);
+                    maxConfidenceIndex = i;
+                }
 
-        List<List<Double>> sparseObjectsList = new ArrayList<>();
-        fullObjectsList.forEach(data -> {
-            if (data.get(4) > CONFIDENCE_THRESHOLD) {
-                sparseObjectsList.add(data);
+                if (maxConfidence > CONFIDENCE_THRESHOLD) {
+                    ObjectData.Type objectType = ObjectData.Type.SMALL_VEHICLE;
+                    if (maxConfidenceIndex - 4 == ObjectData.Type.LARGE_VEHICLE.toNum()) {
+                        objectType = ObjectData.Type.LARGE_VEHICLE;
+                    } else if (maxConfidenceIndex - 4 == ObjectData.Type.PLANE.toNum()) {
+                        objectType = ObjectData.Type.PLANE;
+                    } else if (maxConfidenceIndex - 4 == ObjectData.Type.HELICOPTER.toNum()) {
+                        objectType = ObjectData.Type.HELICOPTER;
+                    } else if (maxConfidenceIndex - 4 == ObjectData.Type.SHIP.toNum()) {
+                        objectType = ObjectData.Type.SHIP;
+                    }
+                    sparseObjectsList.add(new ObjectData(
+                            objectData.get(0), objectData.get(1), objectData.get(2), objectData.get(3),
+                            objectType, maxConfidence));
+                }
             }
         });
 
-        List<List<Double>> finalObjectsList = new ArrayList<>();
+        List<ObjectData> finalObjectsList = new ArrayList<>();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(labelsFileName))) {
-            for (List<Double> checkedItem : sparseObjectsList) {
+            for (ObjectData checkedItem : sparseObjectsList) {
                 boolean isNew = true;
                 for (int i = 0; i < finalObjectsList.size(); ++i) {
                     if (calculateIOU(checkedItem, finalObjectsList.get(i)) > IOU_THRESHOLD) {
                         isNew = false;
-                        if (checkedItem.get(4) > finalObjectsList.get(i).get(4)) {
+                        if (checkedItem.confidence() > finalObjectsList.get(i).confidence()) {
                             finalObjectsList.set(i, checkedItem);
                         }
                         break;
@@ -75,9 +83,11 @@ public class Detector {
                 }
                 if (isNew) {
                     finalObjectsList.add(checkedItem);
-                    for (double num : checkedItem) {
-                        writer.write(num + " ");
-                    }
+                    writer.write(checkedItem.X_CENTER() + " " +
+                            checkedItem.Y_CENTER() + " " +
+                            checkedItem.WIDTH() + " " +
+                            checkedItem.HEIGHT() + " " +
+                            checkedItem.confidence());
                     writer.newLine();
                 }
             }
@@ -104,7 +114,7 @@ public class Detector {
 
         net.setInput(Dnn.blobFromImage(resizedImage, 1.0 / 255.0));
 
-        Mat netOutput = net.forward().reshape(0, 4 + NUM_OF_CLASSES).t();
+        Mat netOutput = net.forward().reshape(0, 4 + ObjectData.Type.values().length).t();
 
         List<List<Double>> objectsList = new ArrayList<>(netOutput.rows());
         for (int i = 0; i < netOutput.rows(); ++i) {
@@ -117,19 +127,15 @@ public class Detector {
         return objectsList;
     }
 
-    private static String getLabelsFileName(String imageFileName) {
-        return imageFileName.split("\\.", 2)[0] + OUT_FILE_SUFFIX;
-    }
-
-    private static double calculateIOU(List<Double> a, List<Double> b) {
-        double aXMin = a.get(0) - a.get(2) / 2;
-        double aXMax = a.get(0) + a.get(2) / 2;
-        double aYMin = a.get(1) - a.get(3) / 2;
-        double aYMax = a.get(1) + a.get(3) / 2;
-        double bXMin = b.get(0) - b.get(2) / 2;
-        double bXMax = b.get(0) + b.get(2) / 2;
-        double bYMin = b.get(1) - b.get(3) / 2;
-        double bYMax = b.get(1) + b.get(3) / 2;
+    private static double calculateIOU(ObjectData a, ObjectData b) {
+        double aXMin = a.X_CENTER() - a.WIDTH() / 2;
+        double aXMax = a.X_CENTER() + a.WIDTH() / 2;
+        double aYMin = a.Y_CENTER() - a.HEIGHT() / 2;
+        double aYMax = a.Y_CENTER() + a.HEIGHT() / 2;
+        double bXMin = b.X_CENTER() - b.WIDTH() / 2;
+        double bXMax = b.X_CENTER() + b.WIDTH() / 2;
+        double bYMin = b.Y_CENTER() - b.HEIGHT() / 2;
+        double bYMax = b.Y_CENTER() + b.HEIGHT() / 2;
 
         if (aXMax < bXMin || bXMax < aXMin || aYMax < bYMin || bYMax < aYMin) {
             return 0.0;

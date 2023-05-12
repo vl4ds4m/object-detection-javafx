@@ -78,13 +78,13 @@ public class Controller {
         }
     }
 
-    private void strokeBoundedBoxes(List<List<Double>> labelsList) {
+    private void strokeBoundedBoxes(List<ObjectData> labelsList) {
         try {
             labelsList.forEach(data -> {
                 Rectangle rectangle = new Rectangle(
-                        data.get(0) - data.get(2) / 2,
-                        data.get(1) - data.get(3) / 2,
-                        data.get(2), data.get(3));
+                        data.X_CENTER() - data.WIDTH() / 2,
+                        data.Y_CENTER() - data.HEIGHT() / 2,
+                        data.WIDTH(), data.HEIGHT());
                 rectangle.setFill(Color.TRANSPARENT);
                 rectangle.setStroke(Color.RED);
                 rectangle.setStrokeWidth(3.0);
