@@ -14,7 +14,7 @@
         <ColumnConstraints halignment="CENTER" minWidth="150.0"/>
     </columnConstraints>
     <rowConstraints>
-        <RowConstraints minHeight="650.0"/>
+        <RowConstraints minHeight="650.0" valignment="CENTER"/>
     </rowConstraints>
 
     <StackPane fx:id="visualPane" GridPane.columnIndex="0">
@@ -41,6 +41,9 @@
 
         <Button onMouseClicked="#writeLabelsToFile" text="Write labels to file" AnchorPane.leftAnchor="10.0"
                 AnchorPane.topAnchor="80.0"/>
+
+        <Button maxWidth="120.0" onMouseClicked="#saveProcessedImage" text="Save the processed image"
+                AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="110.0"/>
 
         <Label fx:id="objectsCounter" text="-" AnchorPane.leftAnchor="70.0" AnchorPane.topAnchor="330.0">
             <font>
