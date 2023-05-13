@@ -1,58 +1,117 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<GridPane alignment="CENTER" gridLinesVisible="true" hgap="10.0" minHeight="700.0" minWidth="850.0"
-          xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
-          fx:controller="org.vl4ds4m.objdetjfx.Controller">
+<!--<GridPane alignment="CENTER" gridLinesVisible="true" minHeight="700.0" minWidth="850.0"
+                  xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
+                  fx:controller="org.vl4ds4m.objdetjfx.Controller">
 
-    <columnConstraints>
-        <ColumnConstraints halignment="CENTER" minWidth="650.0"/>
-        <ColumnConstraints halignment="CENTER" minWidth="150.0"/>
-    </columnConstraints>
-    <rowConstraints>
-        <RowConstraints minHeight="650.0" valignment="CENTER"/>
-    </rowConstraints>
+            <columnConstraints>
+                <ColumnConstraints halignment="CENTER" minWidth="650.0"/>
+                <ColumnConstraints halignment="CENTER" minWidth="150.0"/>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="50"/>
+                <RowConstraints minHeight="650.0" valignment="CENTER"/>
+            </rowConstraints>
 
-    <StackPane fx:id="visualPane" GridPane.columnIndex="0">
+            <MenuBar GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.columnSpan="2">
+                <Menu text="Help"/>
+            </MenuBar>
 
-        <Label text="Your image">
-            <font>
-                <Font size="20.0"/>
-            </font>
-        </Label>
+            <StackPane fx:id="visualPane" GridPane.columnIndex="0" GridPane.rowIndex="1">
 
-        <ImageView fx:id="imageView"/>
+                <Label text="Your image">
+                    <font>
+                        <Font size="20.0"/>
+                    </font>
+                </Label>
 
-        <Pane fx:id="boundedBoxesPane"/>
+                <ImageView fx:id="imageView"/>
 
-    </StackPane>
+                <Pane fx:id="boundedBoxesPane"/>
 
-    <AnchorPane GridPane.columnIndex="1">
+            </StackPane>
 
-        <Button onMouseClicked="#loadImage" text="Load an image" AnchorPane.leftAnchor="10.0"
-                AnchorPane.topAnchor="20.0"/>
+            <AnchorPane GridPane.columnIndex="1" GridPane.rowIndex="1">
 
-        <Button onMouseClicked="#detectObjects" text="Stroke objects" AnchorPane.leftAnchor="10.0"
-                AnchorPane.topAnchor="50.0"/>
+                <Button onMouseClicked="#loadImage" text="Load an image" AnchorPane.leftAnchor="10.0"
+                        AnchorPane.topAnchor="20.0"/>
 
-        <Button onMouseClicked="#writeLabelsToFile" text="Write labels to file" AnchorPane.leftAnchor="10.0"
-                AnchorPane.topAnchor="80.0"/>
+                <Button onMouseClicked="#detectObjects" text="Stroke objects" AnchorPane.leftAnchor="10.0"
+                        AnchorPane.topAnchor="50.0"/>
 
-        <Button maxWidth="120.0" onMouseClicked="#saveProcessedImage" text="Save the processed image"
-                AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="110.0"/>
+                <Button onMouseClicked="#writeLabelsToFile" text="Write labels to file" AnchorPane.leftAnchor="10.0"
+                        AnchorPane.topAnchor="80.0"/>
 
-        <Label fx:id="objectsCounter" text="-" AnchorPane.leftAnchor="70.0" AnchorPane.topAnchor="330.0">
-            <font>
-                <Font size="20.0"/>
-            </font>
-        </Label>
+                <Button maxWidth="120.0" onMouseClicked="#saveProcessedImage" text="Save the processed image"
+                        AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="110.0"/>
 
-        <Label text="Number of objects" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="300.0"/>
+                <Label fx:id="objectsCounter" text="-" AnchorPane.leftAnchor="70.0" AnchorPane.topAnchor="330.0">
+                    <font>
+                        <Font size="20.0"/>
+                    </font>
+                </Label>
 
-    </AnchorPane>
+                <Label text="Number of objects" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="300.0"/>
 
-</GridPane>
+            </AnchorPane>
+
+        </GridPane>-->
+
+<VBox alignment="TOP_CENTER" minHeight="750" minWidth="900" xmlns="http://javafx.com/javafx/17.0.2-ea"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.vl4ds4m.objdetjfx.Controller">
+
+    <MenuBar>
+        <Menu text="File">
+            <MenuItem text="Load an image" onAction="#loadImage"/>
+
+            <MenuItem text="Save the processed image" onAction="#saveProcessedImage"/>
+        </Menu>
+
+        <Menu text="Processing">
+            <MenuItem text="Stroke objects" onAction="#detectObjects"/>
+
+            <MenuItem text="Write labels to file" onAction="#writeLabelsToFile"/>
+        </Menu>
+
+        <Menu text="Help">
+            <MenuItem text="About Application"/>
+        </Menu>
+    </MenuBar>
+
+    <HBox spacing="20.0">
+        <StackPane minHeight="650.0" minWidth="650.0">
+            <Label text="Your image">
+                <font>
+                    <Font size="20.0"/>
+                </font>
+            </Label>
+
+            <StackPane fx:id="visualPane" alignment="TOP_LEFT">
+                <ImageView fx:id="imageView"/>
+
+                <Pane fx:id="boundedBoxesPane"/>
+            </StackPane>
+        </StackPane>
+
+        <VBox minWidth="150.0" spacing="20.0">
+            <Label fx:id="objectsCounter" text="-">
+                <font>
+                    <Font size="20.0"/>
+                </font>
+            </Label>
+
+            <Label text="Number of objects"/>
+        </VBox>
+
+        <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+        </padding>
+    </HBox>
+
+</VBox>

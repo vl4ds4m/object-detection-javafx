@@ -14,7 +14,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        GridPane root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(FXML_PATH)));
+        VBox root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(FXML_PATH)));
 
         stage.setScene(new Scene(root));
         stage.setMinWidth(root.getMinWidth());

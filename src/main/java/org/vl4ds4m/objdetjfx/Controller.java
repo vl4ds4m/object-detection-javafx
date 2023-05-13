@@ -39,6 +39,10 @@ public class Controller {
     private List<ObjectData> objectDataList = List.of();
 
     @FXML
+    private void initialize() {
+    }
+
+    @FXML
     private void loadImage() {
         FileChooser fileChooser = new FileChooser();
         File imageFile = fileChooser.showOpenDialog(visualPane.getScene().getWindow());
@@ -52,10 +56,10 @@ public class Controller {
                                 "The image resolution should be not greater than 640x640");
                     } else {
                         imageView.setImage(image);
-                        visualPane.setMaxHeight(image.getHeight());
                         visualPane.setMaxWidth(image.getWidth());
-                        boundedBoxesPane.setMaxHeight(image.getHeight());
+                        visualPane.setMaxHeight(image.getHeight());
                         boundedBoxesPane.setMaxWidth(image.getWidth());
+                        boundedBoxesPane.setMaxHeight(image.getHeight());
                         boundedBoxesPane.getChildren().clear();
                         objectsCounter.setText("-");
                         isBoundedBoxesDrawn = false;
@@ -86,8 +90,8 @@ public class Controller {
                         boundedBoxesPane.getChildren().add(rectangle);
                     });
                     Rectangle rectangle = new Rectangle(0.0, 0.0,
-                            boundedBoxesPane.getMaxWidth(),
-                            boundedBoxesPane.getMaxHeight());
+                            boundedBoxesPane.getWidth(),
+                            boundedBoxesPane.getHeight());
                     rectangle.setFill(Color.TRANSPARENT);
                     rectangle.setStroke(Color.BLACK);
                     rectangle.setStrokeWidth(3.0);
