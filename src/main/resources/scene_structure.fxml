@@ -68,15 +68,15 @@
 
     <MenuBar>
         <Menu text="File">
-            <MenuItem text="Load an image" onAction="#loadImage"/>
+            <MenuItem onAction="#loadImage" text="Load an image"/>
 
-            <MenuItem text="Save the processed image" onAction="#saveProcessedImage"/>
+            <MenuItem onAction="#saveProcessedImage" text="Save the processed image"/>
         </Menu>
 
         <Menu text="Processing">
-            <MenuItem text="Stroke objects" onAction="#detectObjects"/>
+            <MenuItem onAction="#detectObjects" text="Stroke objects"/>
 
-            <MenuItem text="Write labels to file" onAction="#writeLabelsToFile"/>
+            <MenuItem onAction="#writeLabelsToFile" text="Write labels to file"/>
         </Menu>
 
         <Menu text="Help">
@@ -99,14 +99,96 @@
             </StackPane>
         </StackPane>
 
-        <VBox minWidth="150.0" spacing="20.0">
-            <Label fx:id="objectsCounter" text="-">
+        <VBox alignment="CENTER_LEFT" minWidth="200.0" spacing="20.0">
+            <Label text="Detected objects">
                 <font>
-                    <Font size="20.0"/>
+                    <Font size="16.0"/>
                 </font>
             </Label>
 
-            <Label text="Number of objects"/>
+            <HBox spacing="10.0">
+                <Label minWidth="130.0" text="Small vehicles:">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Label>
+
+                <Label fx:id="smallVehiclesCounter" text="-">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Label>
+            </HBox>
+
+            <HBox spacing="10.0">
+                <Label minWidth="130.0" text="Large vehicles:">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Label>
+
+                <Label text="-" fx:id="largeVehiclesCounter">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Label>
+            </HBox>
+
+            <HBox spacing="10.0">
+                <Label minWidth="130.0" text="Planes">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Label>
+
+                <Label text="-" fx:id="planesCounter">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Label>
+            </HBox>
+
+            <HBox spacing="10.0">
+                <Label minWidth="130.0" text="Helicopters">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Label>
+
+                <Label text="-" fx:id="helicoptersCounter">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Label>
+            </HBox>
+
+            <HBox spacing="10.0">
+                <Label minWidth="130.0" text="Ships">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Label>
+
+                <Label text="-" fx:id="shipsCounter">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Label>
+            </HBox>
+
+            <HBox spacing="10.0">
+                <Label minWidth="130.0" text="Total">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Label>
+
+                <Label text="-" fx:id="totalCounter">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Label>
+            </HBox>
         </VBox>
 
         <padding>

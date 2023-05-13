@@ -17,7 +17,12 @@ import javafx.stage.FileChooser;
 
 import javax.imageio.ImageIO;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class manage the application.
@@ -33,13 +38,30 @@ public class Controller {
     @FXML
     private Pane boundedBoxesPane;
     @FXML
-    private Label objectsCounter;
+    private Label smallVehiclesCounter;
+    @FXML
+    private Label largeVehiclesCounter;
+    @FXML
+    private Label planesCounter;
+    @FXML
+    private Label helicoptersCounter;
+    @FXML
+    private Label shipsCounter;
+    @FXML
+    private Label totalCounter;
     private String imageFileName = "";
     private boolean isBoundedBoxesDrawn = false;
     private List<ObjectData> objectDataList = List.of();
+    private Map<ObjectData.Type, Label> labelCountersMap = Map.of();
 
     @FXML
     private void initialize() {
+        labelCountersMap = Map.of(
+                ObjectData.Type.SMALL_VEHICLE, smallVehiclesCounter,
+                ObjectData.Type.LARGE_VEHICLE, largeVehiclesCounter,
+                ObjectData.Type.PLANE, planesCounter,
+                ObjectData.Type.HELICOPTER, helicoptersCounter,
+                ObjectData.Type.SHIP, shipsCounter);
     }
 
     @FXML
@@ -61,7 +83,8 @@ public class Controller {
                         boundedBoxesPane.setMaxWidth(image.getWidth());
                         boundedBoxesPane.setMaxHeight(image.getHeight());
                         boundedBoxesPane.getChildren().clear();
-                        objectsCounter.setText("-");
+                        labelCountersMap.forEach((key, label) -> label.setText("-"));
+                        totalCounter.setText("-");
                         isBoundedBoxesDrawn = false;
                     }
                 } else {
@@ -78,6 +101,8 @@ public class Controller {
         if (imageView.getImage() != null) {
             if (!isBoundedBoxesDrawn) {
                 objectDataList = Detector.detectObjectsOnImage(imageFileName);
+                List<Integer> objectsCountersList = new ArrayList<>(
+                        Collections.nCopies(ObjectData.Type.values().length, 0));
                 try {
                     objectDataList.forEach(data -> {
                         Rectangle rectangle = new Rectangle(
@@ -85,9 +110,10 @@ public class Controller {
                                 data.Y_CENTER() - data.HEIGHT() / 2,
                                 data.WIDTH(), data.HEIGHT());
                         rectangle.setFill(Color.TRANSPARENT);
-                        rectangle.setStroke(Color.RED);
-                        rectangle.setStrokeWidth(3.0);
+                        rectangle.setStroke(data.type().toColor());
+                        rectangle.setStrokeWidth(2.0);
                         boundedBoxesPane.getChildren().add(rectangle);
+                        objectsCountersList.set(data.type().toNum(), objectsCountersList.get(data.type().toNum()) + 1);
                     });
                     Rectangle rectangle = new Rectangle(0.0, 0.0,
                             boundedBoxesPane.getWidth(),
@@ -96,7 +122,9 @@ public class Controller {
                     rectangle.setStroke(Color.BLACK);
                     rectangle.setStrokeWidth(3.0);
                     boundedBoxesPane.getChildren().add(rectangle);
-                    objectsCounter.setText(String.valueOf(objectDataList.size()));
+                    labelCountersMap.forEach(
+                            (key, label) -> label.setText(objectsCountersList.get(key.toNum()).toString()));
+                    totalCounter.setText(Integer.toString(objectDataList.size()));
                     isBoundedBoxesDrawn = true;
                 } catch (IndexOutOfBoundsException | NumberFormatException e) {
                     showAlert(Alert.AlertType.WARNING,
@@ -115,8 +143,8 @@ public class Controller {
     private void writeLabelsToFile() {
         if (imageView.getImage() != null) {
             if (isBoundedBoxesDrawn) {
-                final String labelsFileName = getFileName() + "_labels.txt";
-                try (BufferedWriter writer = new BufferedWriter(new FileWriter(labelsFileName))) {
+                try (BufferedWriter writer =
+                             new BufferedWriter(new FileWriter(getNewFile(imageFileName) + "_labels.txt"))) {
                     for (ObjectData objectData : objectDataList) {
                         writer.write(objectData.X_CENTER() + " " + objectData.Y_CENTER() + " " +
                                 objectData.WIDTH() + " " + objectData.HEIGHT() + " " +
@@ -147,8 +175,8 @@ public class Controller {
                         visualPane.getLayoutX(), visualPane.getLayoutY(),
                         visualPane.getMaxWidth(), visualPane.getMaxHeight()));
                 WritableImage writableImage = visualPane.snapshot(snapshotParameters, null);
-                File imageFile = new File(getFileName() + "_processed.png");
                 try {
+                    File imageFile = new File(getNewFile(imageFileName) + "_processed.png");
                     ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null),
                             "png", imageFile);
                     showAlert(Alert.AlertType.INFORMATION, "Saving the processed image",
@@ -173,7 +201,12 @@ public class Controller {
         alert.show();
     }
 
-    private String getFileName() {
-        return imageFileName.split("\\.", 2)[0];
+    private String getNewFile(String string) throws IOException {
+        Path filePath = Path.of(string);
+        Path newDirectory = Path.of(filePath.getParent().toString(), "ObjectDetectionApp");
+        if (!newDirectory.toFile().exists()) {
+            Files.createDirectory(newDirectory);
+        }
+        return newDirectory + File.separator +  filePath.getFileName().toString().split("\\.", 2)[0];
     }
 }
