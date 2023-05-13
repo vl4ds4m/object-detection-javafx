@@ -4,64 +4,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
-
-<!--<GridPane alignment="CENTER" gridLinesVisible="true" minHeight="700.0" minWidth="850.0"
-                  xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
-                  fx:controller="org.vl4ds4m.objdetjfx.Controller">
-
-            <columnConstraints>
-                <ColumnConstraints halignment="CENTER" minWidth="650.0"/>
-                <ColumnConstraints halignment="CENTER" minWidth="150.0"/>
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints minHeight="50"/>
-                <RowConstraints minHeight="650.0" valignment="CENTER"/>
-            </rowConstraints>
-
-            <MenuBar GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.columnSpan="2">
-                <Menu text="Help"/>
-            </MenuBar>
-
-            <StackPane fx:id="visualPane" GridPane.columnIndex="0" GridPane.rowIndex="1">
-
-                <Label text="Your image">
-                    <font>
-                        <Font size="20.0"/>
-                    </font>
-                </Label>
-
-                <ImageView fx:id="imageView"/>
-
-                <Pane fx:id="boundedBoxesPane"/>
-
-            </StackPane>
-
-            <AnchorPane GridPane.columnIndex="1" GridPane.rowIndex="1">
-
-                <Button onMouseClicked="#loadImage" text="Load an image" AnchorPane.leftAnchor="10.0"
-                        AnchorPane.topAnchor="20.0"/>
-
-                <Button onMouseClicked="#detectObjects" text="Stroke objects" AnchorPane.leftAnchor="10.0"
-                        AnchorPane.topAnchor="50.0"/>
-
-                <Button onMouseClicked="#writeLabelsToFile" text="Write labels to file" AnchorPane.leftAnchor="10.0"
-                        AnchorPane.topAnchor="80.0"/>
-
-                <Button maxWidth="120.0" onMouseClicked="#saveProcessedImage" text="Save the processed image"
-                        AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="110.0"/>
-
-                <Label fx:id="objectsCounter" text="-" AnchorPane.leftAnchor="70.0" AnchorPane.topAnchor="330.0">
-                    <font>
-                        <Font size="20.0"/>
-                    </font>
-                </Label>
-
-                <Label text="Number of objects" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="300.0"/>
-
-            </AnchorPane>
-
-        </GridPane>-->
 
 <VBox alignment="TOP_CENTER" minHeight="750" minWidth="900" xmlns="http://javafx.com/javafx/17.0.2-ea"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.vl4ds4m.objdetjfx.Controller">
@@ -85,7 +29,9 @@
     </MenuBar>
 
     <HBox spacing="20.0">
-        <StackPane minHeight="650.0" minWidth="650.0">
+        <StackPane>
+            <Rectangle arcHeight="20.0" arcWidth="20.0" fill="WHITE" height="650.0" stroke="BLACK" strokeType="INSIDE"
+                       strokeWidth="3.0" width="650.0"/>
             <Label text="Your image">
                 <font>
                     <Font size="20.0"/>
@@ -98,98 +44,106 @@
                 <Pane fx:id="boundedBoxesPane"/>
             </StackPane>
         </StackPane>
+        <StackPane prefHeight="150.0" prefWidth="200.0">
+            <Rectangle arcHeight="20.0" arcWidth="20.0" fill="WHITE" height="300.0" stroke="BLACK"
+                       strokeType="INSIDE" strokeWidth="3.0" width="220.0"/>
 
-        <VBox alignment="CENTER_LEFT" minWidth="200.0" spacing="20.0">
-            <Label text="Detected objects">
-                <font>
-                    <Font size="16.0"/>
-                </font>
-            </Label>
-
-            <HBox spacing="10.0">
-                <Label minWidth="130.0" text="Small vehicles:">
+            <VBox alignment="CENTER_LEFT" minWidth="220.0" spacing="20.0">
+                <Label text="Detected objects">
                     <font>
                         <Font size="16.0"/>
                     </font>
                 </Label>
 
-                <Label fx:id="smallVehiclesCounter" text="-">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                </Label>
-            </HBox>
+                <HBox spacing="10.0">
+                    <Label minWidth="130.0" text="Small vehicles:">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
 
-            <HBox spacing="10.0">
-                <Label minWidth="130.0" text="Large vehicles:">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                </Label>
+                    <Label fx:id="smallVehiclesCounter" text="-">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                </HBox>
 
-                <Label text="-" fx:id="largeVehiclesCounter">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                </Label>
-            </HBox>
+                <HBox spacing="10.0">
+                    <Label minWidth="130.0" text="Large vehicles:">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
 
-            <HBox spacing="10.0">
-                <Label minWidth="130.0" text="Planes">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                </Label>
+                    <Label fx:id="largeVehiclesCounter" text="-">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                </HBox>
 
-                <Label text="-" fx:id="planesCounter">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                </Label>
-            </HBox>
+                <HBox spacing="10.0">
+                    <Label minWidth="130.0" text="Planes">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
 
-            <HBox spacing="10.0">
-                <Label minWidth="130.0" text="Helicopters">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                </Label>
+                    <Label fx:id="planesCounter" text="-">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                </HBox>
 
-                <Label text="-" fx:id="helicoptersCounter">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                </Label>
-            </HBox>
+                <HBox spacing="10.0">
+                    <Label minWidth="130.0" text="Helicopters">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
 
-            <HBox spacing="10.0">
-                <Label minWidth="130.0" text="Ships">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                </Label>
+                    <Label fx:id="helicoptersCounter" text="-">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                </HBox>
 
-                <Label text="-" fx:id="shipsCounter">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                </Label>
-            </HBox>
+                <HBox spacing="10.0">
+                    <Label minWidth="130.0" text="Ships">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
 
-            <HBox spacing="10.0">
-                <Label minWidth="130.0" text="Total">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                </Label>
+                    <Label fx:id="shipsCounter" text="-">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                </HBox>
 
-                <Label text="-" fx:id="totalCounter">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                </Label>
-            </HBox>
-        </VBox>
+                <HBox spacing="10.0">
+                    <Label minWidth="130.0" text="Total">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+
+                    <Label fx:id="totalCounter" text="-">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                </HBox>
+
+                <padding>
+                    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+                </padding>
+            </VBox>
+        </StackPane>
 
         <padding>
             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>

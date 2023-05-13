@@ -86,6 +86,13 @@ public class Controller {
                         labelCountersMap.forEach((key, label) -> label.setText("-"));
                         totalCounter.setText("-");
                         isBoundedBoxesDrawn = false;
+                        Rectangle rectangle = new Rectangle(0.0, 0.0,
+                                boundedBoxesPane.getMaxWidth(),
+                                boundedBoxesPane.getMaxHeight());
+                        rectangle.setFill(Color.TRANSPARENT);
+                        rectangle.setStroke(Color.BLACK);
+                        rectangle.setStrokeWidth(3.0);
+                        boundedBoxesPane.getChildren().add(rectangle);
                     }
                 } else {
                     showAlert(Alert.AlertType.WARNING, "Loading an image", "The file isn't an image!");
@@ -115,13 +122,6 @@ public class Controller {
                         boundedBoxesPane.getChildren().add(rectangle);
                         objectsCountersList.set(data.type().toNum(), objectsCountersList.get(data.type().toNum()) + 1);
                     });
-                    Rectangle rectangle = new Rectangle(0.0, 0.0,
-                            boundedBoxesPane.getWidth(),
-                            boundedBoxesPane.getHeight());
-                    rectangle.setFill(Color.TRANSPARENT);
-                    rectangle.setStroke(Color.BLACK);
-                    rectangle.setStrokeWidth(3.0);
-                    boundedBoxesPane.getChildren().add(rectangle);
                     labelCountersMap.forEach(
                             (key, label) -> label.setText(objectsCountersList.get(key.toNum()).toString()));
                     totalCounter.setText(Integer.toString(objectDataList.size()));
