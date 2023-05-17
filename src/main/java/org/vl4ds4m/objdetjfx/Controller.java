@@ -194,6 +194,15 @@ public class Controller {
         }
     }
 
+    @FXML
+    private void showInfo() {
+        showAlert(Alert.AlertType.INFORMATION, "About the application",
+                """
+                        The program for detection transport objects on satellite images.
+                        Author: Samsonov Vladislav,
+                        HSE Computer Science, Software Engineering, 2023""");
+    }
+
     private void showAlert(Alert.AlertType alertType, String header, String message) {
         Alert alert = new Alert(alertType);
         alert.setHeaderText(header);

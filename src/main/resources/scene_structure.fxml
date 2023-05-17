@@ -24,7 +24,7 @@
         </Menu>
 
         <Menu text="Help">
-            <MenuItem text="About Application"/>
+            <MenuItem onAction="#showInfo" text="About Application"/>
         </Menu>
     </MenuBar>
 
