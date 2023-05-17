@@ -17,6 +17,7 @@ class Detector {
     private static final double CONFIDENCE_THRESHOLD = 0.25;
     private static final double IOU_THRESHOLD = 0.25;
     private static final int IMAGE_SIDE = 640;
+    private static final String NET_FILE = "net.onnx";
 
     static {
         nu.pattern.OpenCV.loadLocally();
@@ -85,7 +86,7 @@ class Detector {
     }
 
     private static List<List<Double>> writeHBBToList(String imageFileName) {
-        Net net = Dnn.readNetFromONNX("net.onnx");
+        Net net = Dnn.readNetFromONNX(NET_FILE);
 
         Mat originImage = imread(imageFileName);
         Mat resizedImage = new Mat(IMAGE_SIDE, IMAGE_SIDE, originImage.type());

@@ -2,6 +2,11 @@
 
 PATH=/usr/lib/jvm/jdk-17/bin:$PATH
 
+# Define application root path
+APP_PATH=/home/vladsam/ObjectDetectionApplicationLinux/
+
+cd $APP_PATH
+
 java --module-path \
 jar/object-detection-javafx-1.0-SNAPSHOT.jar:\
 jar/javafx-base-17.0.6-linux.jar:\
